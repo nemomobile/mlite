@@ -67,11 +67,6 @@ public:
      */
     virtual ~MNotificationGroup();
 
-    //! \reimp
-    virtual bool publish();
-    virtual bool remove();
-    //! \reimp_end
-
     /*!
      * Returns a list of notification groups created by this application but
      * which have not been dismissed by the user yet. Caller of this function
@@ -79,6 +74,8 @@ public:
      * freeing them.
      *
      * \return list of notifications
+     *
+     * \deprecated This function is not supported and will always return an empty list.
      */
     static QList<MNotificationGroup *> notificationGroups();
 
@@ -100,8 +97,26 @@ public:
      */
     explicit MNotificationGroup(const MNotificationGroup &group);
 
-    friend QDBusArgument &operator<<(QDBusArgument &, const MNotificationGroup &);
-    friend const QDBusArgument &operator>>(const QDBusArgument &, MNotificationGroup &);
+    virtual bool publish();
+
+    /*!
+     * Returns amount of notifications in a given group
+     *
+     * \param groupId the group ID
+     * \return amount of notifications in given group
+     *
+     * \deprecated This function is not supported and will always return 0.
+     */
+    uint notificationCount();
+
+    //! \internal
+    /*!
+     * Timestamp cannot be set for MotificationGroup.
+     * This is to disable setTimestamp inherited from
+     * MNotification.
+     */
+    void setTimestamp(const QDateTime &timestamp);
+    //! \internal_end
 
 protected:
     /*!

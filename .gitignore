@@ -5,3 +5,4 @@ Makefile
 *.pro.user
 .moc
 .obj
+mnotificationmanagerproxy.*

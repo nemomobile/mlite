@@ -20,13 +20,12 @@
 #ifndef MREMOTEACTION_P_H
 #define MREMOTEACTION_P_H
 
-#include "maction_p.h"
+#include <QObject>
 #include <QString>
 
 class MRemoteAction;
-class QDBusInterface;
 
-class MRemoteActionPrivate : public MActionPrivate
+class MRemoteActionPrivate
 {
     Q_DECLARE_PUBLIC(MRemoteAction)
 
@@ -44,6 +43,9 @@ public:
     QString methodName;
     //! The arguments of the D-Bus call
     QList<QVariant> arguments;
+
+protected:
+    MRemoteAction *q_ptr;
 };
 
 #endif

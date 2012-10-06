@@ -17,10 +17,13 @@
 **
 ****************************************************************************/
 
+#include <QDBusConnection>
+#include <QCoreApplication>
+#include <QFileInfo>
 #include "mnotification.h"
 #include "mnotification_p.h"
-#include "mnotificationmanager.h"
 #include "mnotificationgroup.h"
+#include "mnotificationmanagerproxy.h"
 #include "mremoteaction.h"
 
 const QString MNotification::DeviceEvent = "device";
@@ -33,7 +36,6 @@ const QString MNotification::EmailBouncedEvent = "email.bounced";
 const QString MNotification::ImEvent = "im";
 const QString MNotification::ImErrorEvent = "im.error";
 const QString MNotification::ImReceivedEvent = "im.received";
-const QString MNotification::ImIncomingVideoChat = "im.incomingVideoChat";
 const QString MNotification::NetworkEvent = "network";
 const QString MNotification::NetworkConnectedEvent = "network.connected";
 const QString MNotification::NetworkDisconnectedEvent = "network.disconnected";
@@ -44,22 +46,46 @@ const QString MNotification::PresenceOnlineEvent = "presence.online";
 const QString MNotification::TransferEvent = "transfer";
 const QString MNotification::TransferCompleteEvent = "transfer.complete";
 const QString MNotification::TransferErrorEvent = "transfer.error";
-const QString MNotification::MessageEvent = "x-nokia.message";
-const QString MNotification::MessageArrivedEvent = "x-nokia.message.arrived";
-const QString MNotification::PhoneIncomingCall = "x-nokia.call";
-const QString MNotification::HardNotification = "hard.notification";
+
+QPointer<MNotificationManagerProxy> MNotificationPrivate::notificationManager;
+QString MNotificationPrivate::appName;
 
 MNotificationPrivate::MNotificationPrivate() :
     id(0),
     groupId(0),
-    count(1)
+    count(0),
+    userSetTimestamp(0),
+    publishedTimestamp(0)
 {
+    if (notificationManager.isNull()) {
+        notificationManager = new MNotificationManagerProxy("org.freedesktop.Notifications", "/org/freedesktop/Notifications", QDBusConnection::sessionBus());
+        appName = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
+    }
+
+    connect(notificationManager.data(), SIGNAL(ActionInvoked(uint,QString)), this, SLOT(invokeAction(uint,QString)));
 }
 
 MNotificationPrivate::~MNotificationPrivate()
 {
 }
 
+QVariantHash MNotificationPrivate::hints() const
+{
+    QVariantHash hints;
+    hints.insert("category", eventType);
+    hints.insert("x-nemo-item-count", count);
+    hints.insert("x-nemo-timestamp", userSetTimestamp);
+    hints.insert("x-nemo-preview-summary", summary);
+    hints.insert("x-nemo-preview-body", body);
+    return hints;
+}
+
+void MNotificationPrivate::invokeAction(uint id, const QString &actionKey)
+{
+    if (id == this->id && actionKey == "clicked") {
+        MRemoteAction(action).trigger();
+    }
+}
 
 MNotification::MNotification(MNotificationPrivate &dd) :
     d_ptr(&dd)
@@ -188,34 +214,41 @@ QString MNotification::identifier() const
     return d->identifier;
 }
 
-void MNotification::setDeclineAction(const MRemoteAction &declineAction)
+void MNotification::setTimestamp(const QDateTime &timestamp)
 {
     Q_D(MNotification);
-    d->declineAction = declineAction.toString();
+    d->userSetTimestamp = timestamp.isValid() ? timestamp.toTime_t() : 0;
+}
+
+const QDateTime MNotification::timestamp() const
+{
+    Q_D(const MNotification);
+    return d->publishedTimestamp != 0 ? QDateTime::fromTime_t(d->publishedTimestamp) : QDateTime();
 }
 
 bool MNotification::publish()
 {
     Q_D(MNotification);
 
-    bool success = false;
-    if (d->id == 0) {
-        if (!d->summary.isNull() || !d->body.isNull() || !d->image.isNull() || !d->action.isNull() || !d->identifier.isNull()) {
-            d->id = MNotificationManager::instance()->addNotification(d->groupId, d->eventType, d->summary, d->body, d->action, d->image, d->declineAction, d->count, d->identifier);
-        } else {
-            d->id = MNotificationManager::instance()->addNotification(d->groupId, d->eventType);
-        }
-
-        success = d->id != 0;
-    } else {
-        if (!d->summary.isNull() || !d->body.isNull() || !d->image.isNull() || !d->action.isNull() || !d->identifier.isNull()) {
-            success = MNotificationManager::instance()->updateNotification(d->id, d->eventType, d->summary, d->body, d->action, d->image, d->declineAction, d->count, d->identifier);
-        } else {
-            success = MNotificationManager::instance()->updateNotification(d->id, d->eventType);
-        }
+    if (d->userSetTimestamp == 0) {
+        d->userSetTimestamp = QDateTime::currentDateTimeUtc().toTime_t();
     }
 
-    return success;
+    if (d->groupId == 0) {
+        // Standalone notification: preview banner and notification use the same summary and body
+        d->id = d->notificationManager->Notify(d->appName, d->id, d->image, d->summary, d->body, QStringList() << "clicked", d->hints(), -1);
+    } else {
+        // Notification in a group: show summary and body in preview banner only
+        d->id = d->notificationManager->Notify(d->appName, d->id, d->image, QString(), QString(), QStringList() << "clicked", d->hints(), -1);
+    }
+
+    if (d->id != 0) {
+        d->publishedTimestamp = d->userSetTimestamp;
+    }
+
+    d->userSetTimestamp = 0;
+
+    return d->id != 0;
 }
 
 bool MNotification::remove()
@@ -224,9 +257,9 @@ bool MNotification::remove()
 
     if (isPublished()) {
         Q_D(MNotification);
-        uint id = d->id;
+        d->notificationManager->CloseNotification(d->id);
         d->id = 0;
-        success = MNotificationManager::instance()->removeNotification(id);
+        success = true;
     }
 
     return success;
@@ -240,48 +273,7 @@ bool MNotification::isPublished() const
 
 QList<MNotification *> MNotification::notifications()
 {
-    QList<MNotification> list = MNotificationManager::instance()->notificationListWithIdentifiers();
-    QList<MNotification *> notifications;
-    foreach(const MNotification &notification, list) {
-        notifications.append(new MNotification(notification));
-    }
-    return notifications;
-}
-
-QDBusArgument &operator<<(QDBusArgument &argument, const MNotification &notification)
-{
-    const MNotificationPrivate *d = notification.d_func();
-    argument.beginStructure();
-    argument << d->id;
-    argument << d->groupId;
-    argument << d->eventType;
-    argument << d->summary;
-    argument << d->body;
-    argument << d->image;
-    argument << d->action;
-    argument << d->count;
-    argument << d->identifier;
-    argument << d->declineAction;
-    argument.endStructure();
-    return argument;
-}
-
-const QDBusArgument &operator>>(const QDBusArgument &argument, MNotification &notification)
-{
-    MNotificationPrivate *d = notification.d_func();
-    argument.beginStructure();
-    argument >> d->id;
-    argument >> d->groupId;
-    argument >> d->eventType;
-    argument >> d->summary;
-    argument >> d->body;
-    argument >> d->image;
-    argument >> d->action;
-    argument >> d->count;
-    argument >> d->identifier;
-    argument >> d->declineAction;
-    argument.endStructure();
-    return argument;
+    return QList<MNotification *>();
 }
 
 MNotification &MNotification::operator=(const MNotification &notification)
@@ -297,6 +289,7 @@ MNotification &MNotification::operator=(const MNotification &notification)
     d->action = dn->action;
     d->count = dn->count;
     d->identifier = dn->identifier;
-    d->declineAction = dn->declineAction;
+    d->userSetTimestamp = dn->userSetTimestamp;
+    d->publishedTimestamp = dn->publishedTimestamp;
     return *this;
 }
