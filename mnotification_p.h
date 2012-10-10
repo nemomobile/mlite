@@ -20,11 +20,18 @@
 #ifndef MNOTIFICATION_P_H
 #define MNOTIFICATION_P_H
 
+#include <QPointer>
+#include <QVariantHash>
+
+class MNotificationManagerProxy;
+
 /*!
  * A private class for MNotification
  */
-class MNotificationPrivate
+class MNotificationPrivate : public QObject
 {
+    Q_OBJECT
+
 public:
     /*!
      * Constructor
@@ -35,6 +42,9 @@ public:
      * Destructor
      */
     virtual ~MNotificationPrivate();
+
+    //! Returns hints for the notification
+    virtual QVariantHash hints() const;
 
     //! The ID of the notification
     uint id;
@@ -63,8 +73,17 @@ public:
     //! The identifier of the notification set by the application
     QString identifier;
 
-    //! The action to be executed when the notification is declined.
-    QString declineAction;
+    //! User set timestamp of notification
+    uint userSetTimestamp;
+
+    //!  Timestamp that has been previously published
+    uint publishedTimestamp;
+
+    static QPointer<MNotificationManagerProxy> notificationManager;
+    static QString appName;
+
+public slots:
+    void invokeAction(uint id, const QString &actionKey);
 };
 
 #endif // MNOTIFICATION_P_H

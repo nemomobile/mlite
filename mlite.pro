@@ -1,3 +1,5 @@
+system(qdbusxml2cpp notificationmanager.xml -p mnotificationmanagerproxy -c MNotificationManagerProxy -i metatypedeclarations.h)
+
 QT     = core dbus
 TARGET = $$qtLibraryTarget(mlite)
 TEMPLATE = lib
@@ -21,35 +23,26 @@ packagesExist(gconf-2.0) {
 
 equals(QT_MAJOR_VERSION, 4) {
     QT += gui
-    SOURCES += maction.cpp \
-               mremoteaction.cpp \
-    mnotification.cpp \
-    mnotificationgroup.cpp \
-    mnotificationmanager.cpp \
-    mnotificationmanagerproxy.cpp
+    SOURCES += mnotificationmanagerproxy.cpp \
+               mnotification.cpp \
+               mnotificationgroup.cpp \
+               mremoteaction.cpp
 
-    HEADERS += maction.h \
-               maction_p.h \
-               MAction \
-               mremoteaction.h \
-               mremoteaction_p.h \
+    HEADERS += mnotificationmanagerproxy.h \
                mnotification.h \
                mnotification_p.h \
                mnotificationgroup.h \
                mnotificationgroup_p.h \
-               mnotificationmanager.h \
-               mnotificationmanagerproxy.h \
                MNotification \
                MNotificationGroup \
+               mremoteaction.h
 
-    INSTALL_HEADERS += mremoteaction.h \
-                       MAction \
-                       mnotification.h \
+    INSTALL_HEADERS += mnotification.h \
                        mnotificationgroup.h \
+                       mremoteaction.h \
                        MNotification \
                        MNotificationGroup \
-                       maction.h
-
+                       MRemoteAction
 }
 
 OBJECTS_DIR = .obj

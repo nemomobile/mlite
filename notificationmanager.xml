@@ -1,154 +1,37 @@
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node>
-  <interface name="com.meego.core.MNotificationManager">
-    <method name="notificationUserId">
-      <arg name="notificationUserId" type="u" direction="out"/>
+  <interface name="org.freedesktop.Notifications">
+    <method name="GetCapabilities">
+      <arg name="capabilities" type="as" direction="out"/>
     </method>
-    <method name="addGroup">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="groupId" type="u" direction="out"/>
-    </method>
-    <method name="addGroup">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
+    <method name="Notify">
+      <arg name="app_name" type="s" direction="in"/>
+      <arg name="replaces_id" type="u" direction="in"/>
+      <arg name="app_icon" type="s" direction="in"/>
       <arg name="summary" type="s" direction="in"/>
       <arg name="body" type="s" direction="in"/>
-      <arg name="action" type="s" direction="in"/>
-      <arg name="imageURI" type="s" direction="in"/>
-      <arg name="declineAction" type="s" direction="in"/>
-      <arg name="count" type="u" direction="in"/>
-      <arg name="identifier" type="s" direction="in"/>
-      <arg name="groupId" type="u" direction="out"/>
+      <arg name="actions" type="as" direction="in"/>
+      <arg name="hints" type="a{sv}" direction="in"/>
+      <arg name="expire_timeout" type="i" direction="in"/>
+      <arg name="id" type="u" direction="out"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.In6" value="QVariantHash"/>
     </method>
-    <method name="addGroup">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="summary" type="s" direction="in"/>
-      <arg name="body" type="s" direction="in"/>
-      <arg name="action" type="s" direction="in"/>
-      <arg name="imageURI" type="s" direction="in"/>
-      <arg name="count" type="u" direction="in"/>
-      <arg name="identifier" type="s" direction="in"/>
-      <arg name="groupId" type="u" direction="out"/>
+    <method name="CloseNotification">
+      <arg name="id" type="u" direction="in"/>
     </method>
-    <method name="updateGroup">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="groupId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="result" type="b" direction="out"/>
+    <method name="GetServerInformation">
+      <arg type="s" direction="out"/>
+      <arg name="name" type="s" direction="out"/>
+      <arg name="vendor" type="s" direction="out"/>
+      <arg name="version" type="s" direction="out"/>
     </method>
-    <method name="updateGroup">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="groupId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="summary" type="s" direction="in"/>
-      <arg name="body" type="s" direction="in"/>
-      <arg name="action" type="s" direction="in"/>
-      <arg name="imageURI" type="s" direction="in"/>
-      <arg name="declineAction" type="s" direction="in"/>
-      <arg name="count" type="u" direction="in"/>
-      <arg name="identifier" type="s" direction="in"/>
-      <arg name="result" type="b" direction="out"/>
-    </method>
-    <method name="updateGroup">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="groupId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="summary" type="s" direction="in"/>
-      <arg name="body" type="s" direction="in"/>
-      <arg name="action" type="s" direction="in"/>
-      <arg name="imageURI" type="s" direction="in"/>
-      <arg name="count" type="u" direction="in"/>
-      <arg name="identifier" type="s" direction="in"/>
-      <arg name="result" type="b" direction="out"/>
-    </method>
-    <method name="removeGroup">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="groupId" type="u" direction="in"/>
-      <arg name="result" type="b" direction="out"/>
-    </method>
-    <method name="addNotification">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="groupId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="notificationId" type="u" direction="out"/>
-    </method>
-    <method name="addNotification">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="groupId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="summary" type="s" direction="in"/>
-      <arg name="body" type="s" direction="in"/>
-      <arg name="action" type="s" direction="in"/>
-      <arg name="imageURI" type="s" direction="in"/>
-      <arg name="count" type="u" direction="in"/>
-      <arg name="identifier" type="s" direction="in"/>
-      <arg name="notificationId" type="u" direction="out"/>
-    </method>
-    <method name="addNotification">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="groupId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="summary" type="s" direction="in"/>
-      <arg name="body" type="s" direction="in"/>
-      <arg name="action" type="s" direction="in"/>
-      <arg name="imageURI" type="s" direction="in"/>
-      <arg name="declineAction" type="s" direction="in"/>
-      <arg name="count" type="u" direction="in"/>
-      <arg name="identifier" type="s" direction="in"/>
-      <arg name="notificationId" type="u" direction="out"/>
-    </method>
-    <method name="updateNotification">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="notificationId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="result" type="b" direction="out"/>
-    </method>
-    <method name="updateNotification">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="notificationId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="summary" type="s" direction="in"/>
-      <arg name="body" type="s" direction="in"/>
-      <arg name="action" type="s" direction="in"/>
-      <arg name="imageURI" type="s" direction="in"/>
-      <arg name="declineAction" type="s" direction="in"/>
-      <arg name="count" type="u" direction="in"/>
-      <arg name="identifier" type="s" direction="in"/>
-      <arg name="result" type="b" direction="out"/>
-    </method>
-    <method name="updateNotification">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="notificationId" type="u" direction="in"/>
-      <arg name="eventType" type="s" direction="in"/>
-      <arg name="summary" type="s" direction="in"/>
-      <arg name="body" type="s" direction="in"/>
-      <arg name="action" type="s" direction="in"/>
-      <arg name="imageURI" type="s" direction="in"/>
-      <arg name="count" type="u" direction="in"/>
-      <arg name="identifier" type="s" direction="in"/>
-      <arg name="result" type="b" direction="out"/>
-    </method>
-    <method name="removeNotification">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="notificationId" type="u" direction="in"/>
-      <arg name="result" type="b" direction="out"/>
-    </method>
-    <method name="notificationIdList">
-      <arg name="notificationUserId" type="u" direction="in"/>
-      <arg name="result" type="au" direction="out"/>
-      <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QList &lt; uint &gt; "/>
-    </method>
-    <method name="notificationListWithIdentifiers">
-       <arg name="notificationUserId" type="u" direction="in"/>
-       <arg name="result" type="a(uusssssus)" direction="out"/>
-       <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QList &lt; MNotification &gt; "/>
-    </method>
-    <method name="notificationGroupListWithIdentifiers">
-       <arg name="notificationUserId" type="u" direction="in"/>
-       <arg name="result" type="a(usssssus)" direction="out"/>
-       <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QList &lt; MNotificationGroup &gt; "/>
-    </method>
+    <signal name="NotificationClosed">
+      <arg name="id" type="u"/>
+      <arg name="reason" type="u"/>
+    </signal>
+    <signal name="ActionInvoked">
+      <arg name="id" type="u"/>
+      <arg name="action_key" type="s"/>
+    </signal>
   </interface>
 </node>

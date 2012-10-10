@@ -19,13 +19,8 @@
 
 #include "mnotificationgroup.h"
 #include "mnotificationgroup_p.h"
-#include "mnotificationmanager.h"
 
 MNotificationGroupPrivate::MNotificationGroupPrivate() : MNotificationPrivate()
-{
-}
-
-MNotificationGroupPrivate::~MNotificationGroupPrivate()
 {
 }
 
@@ -57,83 +52,32 @@ MNotificationGroup::MNotificationGroup(uint id) : MNotification(id)
 {
 }
 
+QVariantHash MNotificationGroupPrivate::hints() const
+{
+    QVariantHash hints;
+    hints.insert("category", eventType);
+    hints.insert("x-nemo-item-count", count);
+    hints.insert("x-nemo-timestamp", userSetTimestamp);
+    return hints;
+}
+
 bool MNotificationGroup::publish()
 {
     Q_D(MNotificationGroup);
-
-    bool success = false;
-
-    if (d->id == 0) {
-        if (!d->summary.isNull() || !d->body.isNull() || !d->image.isNull() || !d->action.isNull() || !d->identifier.isNull()) {
-            d->id = MNotificationManager::instance()->addGroup(d->eventType, d->summary, d->body, d->action, d->image, d->declineAction, d->count, d->identifier);
-        } else {
-            d->id = MNotificationManager::instance()->addGroup(d->eventType);
-        }
-
-        success = d->id != 0;
-    } else {
-        if (!d->summary.isNull() || !d->body.isNull() || !d->image.isNull() || !d->action.isNull() || !d->identifier.isNull()) {
-            success = MNotificationManager::instance()->updateGroup(d->id, d->eventType, d->summary, d->body, d->action, d->image, d->declineAction, d->count, d->identifier);
-        } else {
-            success = MNotificationManager::instance()->updateGroup(d->id, d->eventType);
-        }
-    }
-
-    return success;
+    d->groupId = d->id;
+    return MNotification::publish();
 }
 
-bool MNotificationGroup::remove()
+uint MNotificationGroup::notificationCount()
 {
-    if (!isPublished()) {
-        return false;
-    } else {
-        Q_D(MNotificationGroup);
-        uint id = d->id;
-        d->id = 0;
-        return MNotificationManager::instance()->removeGroup(id);
-    }
+    return 0;
 }
 
 QList<MNotificationGroup *> MNotificationGroup::notificationGroups()
 {
-    QList<MNotificationGroup> list = MNotificationManager::instance()->notificationGroupListWithIdentifiers();
-    QList<MNotificationGroup *> notificationGroups;
-    foreach(const MNotificationGroup &group, list) {
-        notificationGroups.append(new MNotificationGroup(group));
-    }
-    return notificationGroups;
+    return QList<MNotificationGroup *>();
 }
 
-QDBusArgument &operator<<(QDBusArgument &argument, const MNotificationGroup &group)
+void MNotificationGroup::setTimestamp(const QDateTime &)
 {
-    const MNotificationGroupPrivate *d = group.d_func();
-    argument.beginStructure();
-    argument << d->id;
-    argument << d->eventType;
-    argument << d->summary;
-    argument << d->body;
-    argument << d->image;
-    argument << d->action;
-    argument << d->count;
-    argument << d->identifier;
-    argument << d->declineAction;
-    argument.endStructure();
-    return argument;
-}
-
-const QDBusArgument &operator>>(const QDBusArgument &argument, MNotificationGroup &group)
-{
-    MNotificationGroupPrivate *d = group.d_func();
-    argument.beginStructure();
-    argument >> d->id;
-    argument >> d->eventType;
-    argument >> d->summary;
-    argument >> d->body;
-    argument >> d->image;
-    argument >> d->action;
-    argument >> d->count;
-    argument >> d->identifier;
-    argument >> d->declineAction;
-    argument.endStructure();
-    return argument;
 }

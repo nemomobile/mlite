@@ -20,7 +20,8 @@
 #ifndef MREMOTEACTION_H_
 #define MREMOTEACTION_H_
 
-#include <MAction>
+#include <QObject>
+#include <QVariantList>
 #include "mlite-global.h"
 
 class MRemoteActionPrivate;
@@ -31,7 +32,7 @@ class MRemoteActionPrivate;
  * \brief MRemoteAction implements a MAction that executes a D-Bus call when triggered.
  *        The D-Bus related parameters can be serialized and unserialized into a string.
  */
-class MLITESHARED_EXPORT MRemoteAction : public MAction
+class MLITESHARED_EXPORT MRemoteAction : public QObject
 {
     Q_OBJECT
 
@@ -75,23 +76,22 @@ public:
      */
     QString toString() const;
 
-protected Q_SLOTS:
+public Q_SLOTS:
     /*!
      * \brief A slot for calling the D-Bus function when the action is triggered
      */
-    void call();
+    void trigger();
 
 protected:
+    //! A pointer to the private implementation class
+    MRemoteActionPrivate *d_ptr;
+
     /*!
      * \brief Initializes the MRemoteAction from a string representation
      *
      * \param string a string representation of a remote action
      */
     void fromString(const QString &string);
-
-    //! \internal
-    MRemoteAction(MRemoteActionPrivate &dd, QObject *parent = NULL);
-    //! \internal_end
 
 private:
     Q_DECLARE_PRIVATE(MRemoteAction)
