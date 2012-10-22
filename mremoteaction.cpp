@@ -23,9 +23,9 @@
 #include <QDBusInterface>
 #include <QDBusPendingCall>
 #include <QBuffer>
+#include <QStringList>
 
-MRemoteActionPrivate::MRemoteActionPrivate() :
-    MActionPrivate()
+MRemoteActionPrivate::MRemoteActionPrivate()
 {
 }
 
@@ -33,7 +33,9 @@ MRemoteActionPrivate::~MRemoteActionPrivate()
 {
 }
 
-MRemoteAction::MRemoteAction(const QString &serviceName, const QString &objectPath, const QString &interface, const QString &methodName, const QList<QVariant> &arguments, QObject *parent) : MAction(*new MRemoteActionPrivate, parent)
+MRemoteAction::MRemoteAction(const QString &serviceName, const QString &objectPath, const QString &interface, const QString &methodName, const QList<QVariant> &arguments, QObject *parent) :
+    QObject(parent),
+    d_ptr(new MRemoteActionPrivate)
 {
     Q_D(MRemoteAction);
 
@@ -42,24 +44,18 @@ MRemoteAction::MRemoteAction(const QString &serviceName, const QString &objectPa
     d->interface = interface;
     d->methodName = methodName;
     d->arguments = arguments;
-
-    connect(this, SIGNAL(triggered()), this, SLOT(call()));
 }
 
-MRemoteAction::MRemoteAction(const QString &string, QObject *parent) : MAction(*new MRemoteActionPrivate, parent)
+MRemoteAction::MRemoteAction(const QString &string, QObject *parent) :
+    QObject(parent),
+    d_ptr(new MRemoteActionPrivate)
 {
     fromString(string);
-
-    connect(this, SIGNAL(triggered()), this, SLOT(call()));
-}
-
-MRemoteAction::MRemoteAction(MRemoteActionPrivate &dd, QObject *parent) : MAction(dd, parent)
-{
-    connect(this, SIGNAL(triggered()), this, SLOT(call()));
 }
 
 MRemoteAction::~MRemoteAction()
 {
+    delete d_ptr;
 }
 
 QString MRemoteAction::toString() const
@@ -117,20 +113,19 @@ void MRemoteAction::fromString(const QString &string)
     }
 }
 
-MRemoteAction::MRemoteAction(const MRemoteAction &action) : MAction(*new MRemoteActionPrivate, action.parent())
+MRemoteAction::MRemoteAction(const MRemoteAction &action) :
+    QObject(action.parent()),
+    d_ptr(new MRemoteActionPrivate)
 {
     fromString(action.toString());
-
-    connect(this, SIGNAL(triggered()), this, SLOT(call()));
 }
 
-void MRemoteAction::call()
+void MRemoteAction::trigger()
 {
     Q_D(MRemoteAction);
 
     QDBusInterface interface(d->serviceName, d->objectPath, d->interface.toAscii());
-    if (interface.isValid())
-    {
+    if (interface.isValid()) {
         interface.asyncCallWithArgumentList(d->methodName, d->arguments);
     }
 }

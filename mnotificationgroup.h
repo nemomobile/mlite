@@ -25,6 +25,9 @@
 #include "mnotification.h"
 
 class MNotificationGroupPrivate;
+class MNotificationManagerProxy;
+
+extern MNotificationManagerProxy *notificationManager();
 
 /*!
     \class MNotificationGroup
@@ -67,11 +70,6 @@ public:
      */
     virtual ~MNotificationGroup();
 
-    //! \reimp
-    virtual bool publish();
-    virtual bool remove();
-    //! \reimp_end
-
     /*!
      * Returns a list of notification groups created by this application but
      * which have not been dismissed by the user yet. Caller of this function
@@ -87,7 +85,6 @@ public:
      * Creates a new uninitialized representation of a notification group.
      * This constructor should only be used for populating the notification group
      * list from D-Bus structures.
-     * \endcond
      */
     MNotificationGroup();
 
@@ -99,9 +96,24 @@ public:
      * \param group the notification representation to a create copy of
      */
     explicit MNotificationGroup(const MNotificationGroup &group);
+    //! \internal_end
 
-    friend QDBusArgument &operator<<(QDBusArgument &, const MNotificationGroup &);
-    friend const QDBusArgument &operator>>(const QDBusArgument &, MNotificationGroup &);
+    /*!
+     * Returns amount of notifications in a given group
+     *
+     * \param groupId the group ID
+     * \return amount of notifications in given group
+     */
+    uint notificationCount();
+
+    //! \internal
+    /*!
+     * Timestamp cannot be set for MotificationGroup.
+     * This is to disable setTimestamp inherited from
+     * MNotification.
+     */
+    void setTimestamp(const QDateTime &timestamp);
+    //! \internal_end
 
 protected:
     /*!

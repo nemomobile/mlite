@@ -148,8 +148,6 @@ public:
     static const QString ImErrorEvent;
     //! A received instant message notification.
     static const QString ImReceivedEvent;
-    //! An incoming instant message video chat notification
-    static const QString ImIncomingVideoChat;
     //! A generic network notification that doesn't fit into any other category.
     static const QString NetworkEvent;
     //! A network connection notification, such as successful sign-on to a network service. This should not be confused with device.added for new network devices.
@@ -170,14 +168,6 @@ public:
     static const QString TransferCompleteEvent;
     //! A file transfer or download error.
     static const QString TransferErrorEvent;
-    //! A generic SMS/MMS-related notification that doesn't fit into any other category.
-    static const QString MessageEvent;
-    //! A new SMS/MMS notification.
-    static const QString MessageArrivedEvent;
-    //! A incoming phone call.
-    static const QString PhoneIncomingCall;
-    //! String to indicate hard notification
-    static const QString HardNotification;
 
     /*!
      * Creates a new representation of a notification. The notification will
@@ -294,13 +284,35 @@ public:
     QString identifier() const;
 
     /*!
-     * Sets the decline action to be executed when notification is declined.
+     * Sets a user specified timestamp for notification.
      *
-     * \param the decline action to be executed when notification is declined.
+     * If user has not set the timestamp with setTimestamp() since the previous
+     * publish(), system current time is used as the notification's timestamp
+     * the next time the notification is published with publish().
+     *
+     * If timestamp provided is invalid, notification's timestamp is null.
+     *
+     * Use timestamp() to get the actual published timestamp.
+     *
+     * NOTE! Setting timestamp for MNotificationGroup does nothing.
+     *
+     *\param timestamp Timestamp for notification
+     *
+     *\sa timestamp()
      */
-    void setDeclineAction(const MRemoteAction &declineAction);
+    void setTimestamp(const QDateTime &timestamp);
 
-     /*!
+    /*!
+     * Returns the published timestamp of the notification. If notification
+     * has not yet been published null QDateTime is returned.
+     *
+     *\return timestamp of notification. If timestamp is not published null QDateTime is returned.
+     *
+     *\sa setTimestamp()
+     */
+    const QDateTime timestamp() const;
+
+    /*!
      * Publishes the notification. If the notification has not yet been
      * published a notification is created into the given notification
      * group (if any) and is given an ID by the notification manager.
@@ -376,6 +388,9 @@ protected:
     //! Returns the ID of the notification.
     uint id() const;
 
+    //! Returns the group ID of the notification.
+    uint groupId() const;
+
     /*!
      * Sets the event type of the notification.
      *
@@ -383,6 +398,8 @@ protected:
      */
     void setEventType(const QString &eventType);
     //! \internal_end
+
+    friend class MNotificationGroup;
 
     Q_DECLARE_PRIVATE(MNotification)
 };
