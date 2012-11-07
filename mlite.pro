@@ -23,6 +23,7 @@ packagesExist(gconf-2.0) {
 
 equals(QT_MAJOR_VERSION, 4) {
     QT += gui
+    include(json/json.pri)
     SOURCES += mnotificationmanagerproxy.cpp \
                mnotification.cpp \
                mnotificationgroup.cpp \

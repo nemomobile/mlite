@@ -1,0 +1,19 @@
+#!/bin/bash
+
+PROJECT="mlite"
+
+VERSION=$(git describe --tags --abbrev=0)
+
+# Set name of toplevel directory for the archive
+PREFIX="${PROJECT}-${VERSION}/"
+
+# Set name of resulting release archive file
+ARCHIVE="${PROJECT}-${VERSION}.tar.bz2"
+
+TAG="HEAD"
+
+git archive --format=tar --prefix=${PREFIX} $TAG | bzip2 -c -- > ${ARCHIVE} && {
+	echo "Created: ${ARCHIVE}"
+} || {
+	echo "Creation of release archive ${ARCHIVE} failed.  Reason unknown."
+}
