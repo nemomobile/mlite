@@ -16,30 +16,14 @@
 **
 ****************************************************************************/
 
+#include "mgconfitem_p.h"
+
 #include <QString>
 #include <QStringList>
 #include <QByteArray>
 #include <QVariant>
 #include <QDebug>
 
-#include "mgconfitem.h"
-
-#include <gconf/gconf-value.h>
-#include <gconf/gconf-client.h>
-
-struct MGConfItemPrivate {
-    MGConfItemPrivate() :
-        notify_id(0),
-        have_gconf(false)
-    {}
-
-    QString key;
-    QVariant value;
-    guint notify_id;
-    bool have_gconf;
-
-    static void notify_trampoline(GConfClient *, guint, GConfEntry *, gpointer);
-};
 
 /* We get the default client and never release it, on purpose, to
    avoid disconnecting from the GConf daemon when a program happens to
@@ -222,6 +206,25 @@ static int convertValue(const QVariant &src, GConfValue **valp)
 
     *valp = v;
     return 1;
+}
+
+GConfClient *MGConfItemPrivate::client()
+{
+    GConfClient *client = get_gconf_client();
+    g_object_ref(client);
+    return client;
+}
+
+QVariant MGConfItemPrivate::toVariant(GConfValue *value)
+{
+    return convertValue(value);
+}
+
+GConfValue *MGConfItemPrivate::fromVariant(const QVariant &variant)
+{
+    GConfValue *value = 0;
+    convertValue(variant, &value);
+    return value;
 }
 
 void MGConfItemPrivate::notify_trampoline(GConfClient *,
