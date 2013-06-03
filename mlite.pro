@@ -20,11 +20,17 @@ CONFIG += link_pkgconfig
 packagesExist(gconf-2.0) {
     PKGCONFIG += gconf-2.0
     DEFINES += HAVE_GCONF
-    HEADERS += mgconfitem.h \
+    HEADERS += mgconfgroup.h \
+               MGConfGroup \
+               mgconfitem.h \
+               mgconfitem_p.h \
                MGConfItem
-    SOURCES += mgconfitem.cpp
+    SOURCES += mgconfgroup.cpp \
+               mgconfitem.cpp
 
-    INSTALL_HEADERS += mgconfitem.h \
+    INSTALL_HEADERS += mgconfgroup.h \
+                       MGConfGroup \
+                       mgconfitem.h \
                        MGConfItem
 
 } else {
