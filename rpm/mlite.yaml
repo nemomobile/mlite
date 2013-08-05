@@ -31,3 +31,10 @@ SubPackages:
         - "%{_libdir}/libmlite.so"
   Description: |
         Development files needed for using the mlite library
+- Name: tests
+  Summary: Test suite for mlite
+  Group: System/Libraries
+  Files:
+        - "/opt/tests/mlite/*"
+  Description: |
+        Test suite for mlite.

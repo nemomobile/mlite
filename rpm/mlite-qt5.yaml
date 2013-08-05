@@ -30,3 +30,10 @@ SubPackages:
         - "%{_libdir}/libmlite5.so"
   Description: |
         Development files needed for using the mlite library
+- Name: tests
+  Summary: Test suite for mlite-qt5
+  Group: System/Libraries
+  Files:
+        - "/opt/tests/mlite-qt5/*"
+  Description: |
+        Test suite for mlite-qt5.

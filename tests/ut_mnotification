@@ -1,0 +1,3 @@
+#!/bin/bash -e
+
+exec dbus-launch ${0}.bin "${@}"

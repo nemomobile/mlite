@@ -129,6 +129,7 @@ static bool doSync(QSettings &originalSettings, QScopedPointer<QFileSystemWatche
             copiedSettings.sync();
             if (copiedSettings.status() == QSettings::NoError) {
                 renameSettingFile(tempFileName, originalSettings.fileName());
+                originalSettings.sync();
                 returnValue = true;
             }
         }

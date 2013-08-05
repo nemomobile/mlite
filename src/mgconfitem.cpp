@@ -342,9 +342,9 @@ MGConfItem::MGConfItem(const QString &key, QObject *parent)
             priv->have_gconf = false;
             return;
         }
+        priv->have_gconf = true;
         update_value(false);
     }
-    priv->have_gconf = true;
 }
 
 MGConfItem::~MGConfItem()

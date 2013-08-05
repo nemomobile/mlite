@@ -28,6 +28,10 @@ class MNotificationPrivate;
 class MNotificationGroup;
 class QString;
 
+namespace Tests {
+    class UtMNotification;
+}
+
 /*!
     \class MNotification
     \brief A class that represents a notification.
@@ -92,6 +96,8 @@ class QString;
 class MLITESHARED_EXPORT MNotification : public QObject
 {
     Q_OBJECT
+
+    friend class Tests::UtMNotification;
 
     /*!
         \property MNotification::summary
