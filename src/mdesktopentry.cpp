@@ -101,15 +101,24 @@ MDesktopEntryPrivate::MDesktopEntryPrivate(const QString &fileName) :
                 QString catalog = desktopEntriesMap.value(TranslationCatalogKey);
                 QString engineeringEnglishCatalog = catalog + "_eng_en";
                 if (!translators.contains(engineeringEnglishCatalog)) {
-                    translators[engineeringEnglishCatalog] = QSharedPointer<QTranslator>(new QTranslator(0));
-                    translators[engineeringEnglishCatalog]->load(engineeringEnglishCatalog, "/usr/share/translations");
-                    qApp->installTranslator(translators[engineeringEnglishCatalog].data());
+                    QTranslator *translator = new QTranslator;
+                    if (translator->load(engineeringEnglishCatalog, "/usr/share/translations")) {
+                        translators[engineeringEnglishCatalog] = QSharedPointer<QTranslator>(translator);
+                        qApp->installTranslator(translator);
+                    } else {
+                        delete translator;
+                    }
                 }
 
                 if (!translators.contains(catalog)) {
-                    translators[catalog] = QSharedPointer<QTranslator>(new QTranslator(0));
-                    translators[catalog]->load(QLocale(), catalog, "-", "/usr/share/translations");
-                    qApp->installTranslator(translators[catalog].data());
+                    QTranslator *translator = new QTranslator;
+                    if (translator->load(QLocale(), catalog, "-", "/usr/share/translations")) {
+                        translators[catalog] = QSharedPointer<QTranslator>(translator);
+                        qApp->installTranslator(translator);
+                    } else {
+                        qDebug() << "Unable to load catalog" << catalog;
+                        delete translator;
+                    }
                 }
             }
         }
@@ -319,7 +328,11 @@ QString MDesktopEntry::name() const
     QString name = value(NameKey);
 
     if (contains(LogicalIdKey)) {
-        name = qtTrId(value(LogicalIdKey).toLatin1().data());
+        QString key = value(LogicalIdKey);
+        QString translation = qtTrId(key.toLatin1().data());
+        if (!translation.isEmpty() && translation != key) {
+            name = translation;
+        }
     } else {
         QString lang, variant, country, postfixKey;
 
