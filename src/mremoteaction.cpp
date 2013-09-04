@@ -124,8 +124,8 @@ void MRemoteAction::trigger()
 {
     Q_D(MRemoteAction);
 
-    QDBusInterface interface(d->serviceName, d->objectPath, d->interface.toLatin1());
-    if (interface.isValid()) {
-        interface.asyncCallWithArgumentList(d->methodName, d->arguments);
-    }
+    QDBusMessage msg = QDBusMessage::createMethodCall(d->serviceName, d->objectPath, d->interface.toLatin1(), d->methodName);
+    msg.setArguments(d->arguments);
+
+    QDBusConnection::sessionBus().asyncCall(msg);
 }
