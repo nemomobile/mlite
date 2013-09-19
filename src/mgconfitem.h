@@ -113,6 +113,16 @@ public:
      */
     void unset();
 
+    /*! Return a list of the directories below this item.  The
+        returned strings are absolute key names like
+        "/myapp/settings".
+
+        A directory is a key that has children.  The same key might
+        also have a value, but that is confusing and best avoided.
+    */
+    QStringList listDirs() const;
+
+
 Q_SIGNALS:
     /*! Emitted when the value of this item has changed.
      */

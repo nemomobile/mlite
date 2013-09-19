@@ -311,6 +311,30 @@ void MGConfItem::unset()
     set(QVariant());
 }
 
+QStringList MGConfItem::listDirs() const
+{
+    QStringList children;
+
+    withClient(client) {
+        QByteArray k = convertKey(priv->key);
+        GError *error = NULL;
+        GSList *dirs = gconf_client_all_dirs(client, k.data(), &error);
+        if (error) {
+            qDebug() << "MGConfItem" << error->message;
+            g_error_free(error);
+            return children;
+        }
+
+        for (GSList *d = dirs; d; d = d->next) {
+            children.append(convertKey((char *)d->data));
+            g_free(d->data);
+        }
+        g_slist_free(dirs);
+    }
+
+    return children;
+}
+
 MGConfItem::MGConfItem(const QString &key, QObject *parent)
     : QObject(parent)
 {
