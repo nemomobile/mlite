@@ -142,8 +142,8 @@ void UtMDesktopEntry::isValid_data()
     };
     foreach (const QString &key, multivalueKeys) {
         MultivalueHelper::add("endSemicolon", key, "foo;", true);
-        MultivalueHelper::add("noEndSemicolon", key, "foo", false);
-        MultivalueHelper::add("escapedEndSemicolon", key, "foo\\;", false);
+        MultivalueHelper::add("noEndSemicolon", key, "foo", true);
+        MultivalueHelper::add("escapedEndSemicolon", key, "foo\\;", true);
         MultivalueHelper::add("endSemicolonWhitespace", key, "foo; ", true);
     }
 
@@ -238,7 +238,7 @@ void UtMDesktopEntry::values_data()
     values["Comment"] = "Lorem ipsum";
     values["Icon"] = "application/foo";
     values["Hidden"] = "true";
-    values["OnlyShowIn"] = "KDE;";
+    values["OnlyShowIn"] = "KDE";
     values["NotShowIn"] = "GNOME;XFCE;";
     values["TryExec"] = "true";
     values["Exec"] = "true";

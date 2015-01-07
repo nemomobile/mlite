@@ -150,16 +150,6 @@ bool MDesktopEntry::readDesktopFile(QIODevice &device, QMap<QString, QString> &d
                 if (!desktopEntriesMap.contains(desktopKey)) {
                     QString value = keyValueRE.cap(2);
 
-                    // Check whether this is a known multivalue key
-                    if (desktopKey == CategoriesKey || desktopKey == OnlyShowInKey ||
-                            desktopKey == NotShowInKey || desktopKey == MimeTypeKey) {
-                        if (value.endsWith("\\;") || !value.endsWith(';')) {
-                            // Multivalue doesn't end with a semicolon so mark the desktop entry invalid
-                            qDebug() << "Value for multivalue key" << desktopKey << "does not end in a semicolon";
-                            valid = false;
-                        }
-                    }
-
                     // Add the value to the desktop entries map
                     desktopEntriesMap.insert(desktopKey, value);
                 } else {
@@ -200,6 +190,11 @@ QStringList MDesktopEntryPrivate::stringListValue(const QString &key) const
 {
     QStringList list;
     QString value = desktopEntriesMap.value(key);
+
+    // Add trailing semicolon to make the code below work when it's missing
+    if (!value.endsWith(";")) {
+        value += ";";
+    }
 
     // Split the string using ; but not \; as the separator
     const int valueLength = value.length();
