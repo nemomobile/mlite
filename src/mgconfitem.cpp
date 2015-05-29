@@ -171,6 +171,94 @@ QStringList MGConfItem::listDirs() const
     return children;
 }
 
+QStringList MGConfItem::listKeys() const
+{
+    QStringList children;
+    gint length = 0;
+    QByteArray k = convertKey(priv->key);
+    if (!k.endsWith("/")) {
+        k.append("/");
+    }
+
+    gchar **dirs = dconf_client_list(priv->client, k.data(), &length);
+    GError *error = NULL;
+
+    for (gint x = 0; x < length; x++) {
+        const gchar *dir = g_strdup_printf ("%s%s", k.data(), dirs[x]);
+        if (dconf_is_key(dir, &error)) {
+            // We have to mimic how gconf was behaving.
+            // so we need to chop off trailing slashes.
+            // dconf will also barf if it gets a "path" with 2 slashes.
+            QString d = convertKey(dir);
+            if (d.endsWith("/")) {
+                d.chop(1);
+            }
+
+            children.append(d);
+        }
+
+        g_free ((gpointer)dir);
+
+        // If we have error set then dconf_is_key() has returned false so we should be safe here
+        if (error) {
+            qWarning() << "MGConfItem" << error->message;
+            g_error_free(error);
+            error = NULL;
+        }
+    }
+
+    g_strfreev(dirs);
+
+    return children;
+}
+
+QVariantMap MGConfItem::listValues() const
+{
+
+    QVariantMap children;
+    gint length = 0;
+    QByteArray k = convertKey(priv->key);
+    if (!k.endsWith("/")) {
+        k.append("/");
+    }
+
+    gchar **items = dconf_client_list(priv->client, k.data(), &length);
+    GError *error = NULL;
+
+    for (gint x = 0; x < length; x++) {
+        const gchar *item = g_strdup_printf ("%s%s", k.data(), items[x]);
+        if (dconf_is_key(item, &error)) {
+            QString k = convertKey(item);
+            QVariant val;
+            GVariant *v = dconf_client_read(priv->client, item);
+            if (!v) {
+                qWarning() << "MGConfItem Failed to read" << priv->key;
+                val = priv->value;
+            }
+
+            val = MDConf::convertValue(v);
+
+            children[k] = val;
+
+            if (v) {
+                g_variant_unref(v);
+            }
+        }
+        g_free ((gpointer)item);
+
+        // If we have error set then dconf_is_key() has returned false so we should be safe here
+        if (error) {
+            qWarning() << "MGConfItem::listItems()" << error->message;
+            g_error_free(error);
+            error = NULL;
+        }
+    }
+
+    g_strfreev(items);
+
+    return children;
+}
+
 bool MGConfItem::sync()
 {
     dconf_client_sync(priv->client);

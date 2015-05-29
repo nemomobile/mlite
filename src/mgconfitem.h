@@ -122,12 +122,31 @@ public:
     */
     QStringList listDirs() const;
 
+    /*! Return a map of the keys inside this directory. The
+        returned strings are absolute key names like
+        "/myapp/settings".
+
+        A directory is a key that has children.  The same key might
+        also have a value, but that is confusing and best avoided.
+    */
+
+    QStringList listKeys() const;
+
+    /*! Return a map of the keys with it's values inside this directory.
+
+        A directory is a key that has children.  The same key might
+        also have a value, but that is confusing and best avoided.
+    */
+
+    QVariantMap listValues() const;
+
     /*! Request dconf to sync value(s) which are not yet synced to the cache.
         Sometimes values may not be synced because eventually this just hints
         dconf to start sync.
 
         Returns true if there's no errors and false on error.
     */
+
     bool sync();
 
 Q_SIGNALS:
