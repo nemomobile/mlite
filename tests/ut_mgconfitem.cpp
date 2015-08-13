@@ -86,7 +86,7 @@ void UtMGConfItem::basicTest()
     QSignalSpy spy2(&item2, SIGNAL(valueChanged()));
     item2.set(value1);
     QCOMPARE(item2.value(), value1);
-    QCOMPARE(spy2.count(), 1);
+    QTRY_COMPARE(spy2.count(), 1);
 
     waitForSignal(&item1, SIGNAL(valueChanged()));
     QTRY_COMPARE(item1.value(), value1);
@@ -96,7 +96,7 @@ void UtMGConfItem::basicTest()
     QSignalSpy spy1(&item1, SIGNAL(valueChanged()));
     item1.set(value2);
     QCOMPARE(item1.value(), value2);
-    QCOMPARE(spy1.count(), 1);
+    QTRY_COMPARE(spy1.count(), 1);
 
     waitForSignal(&item2, SIGNAL(valueChanged()));
     QTRY_COMPARE(item2.value(), value2);

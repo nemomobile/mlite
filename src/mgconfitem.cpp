@@ -68,6 +68,11 @@ void MGConfItemPrivate::notify_trampoline(DConfClient *, gchar *, GStrv, gchar *
     item->update_value(true);
 }
 
+void MGConfItem::emitValueChanged()
+{
+    emit valueChanged();
+}
+
 void MGConfItem::update_value(bool emit_signal)
 {
     QVariant new_value;
@@ -84,7 +89,7 @@ void MGConfItem::update_value(bool emit_signal)
     if (new_value != priv->value || new_value.userType() != priv->value.userType()) {
         priv->value = new_value;
         if (emit_signal)
-            emit valueChanged();
+            QMetaObject::invokeMethod(this, "emitValueChanged", Qt::QueuedConnection);
     }
 }
 

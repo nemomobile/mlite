@@ -139,7 +139,9 @@ private:
     friend struct MGConfItemPrivate;
     struct MGConfItemPrivate *priv;
 
+private slots:
     void update_value(bool emit_signal);
+    void emitValueChanged();
 };
 
 #endif // MGCONFITEM_H
