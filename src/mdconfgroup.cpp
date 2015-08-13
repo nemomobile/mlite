@@ -300,6 +300,11 @@ void MDConfGroup::propertyChanged()
     }
 }
 
+void MDConfGroup::notifyChanged(const QByteArray &basePath, const QByteArray &key)
+{
+    priv->notify(basePath, key);
+}
+
 void MDConfGroupPrivate::connectToClient()
 {
     Q_ASSERT(!client);
@@ -424,6 +429,7 @@ void MDConfGroupPrivate::changed(
         const QByteArray basePath = absoluteKey.mid(0, pathLength);
         const QByteArray key = absoluteKey.mid(pathLength);
 
-        priv->notify(basePath, key);
+        QMetaObject::invokeMethod(priv->group, "notifyChanged", Qt::QueuedConnection,
+                                    Q_ARG(QByteArray, basePath), Q_ARG(QByteArray, key));
     }
 }

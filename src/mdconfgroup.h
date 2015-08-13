@@ -221,6 +221,7 @@ protected:
 
 private slots:
     void propertyChanged();
+    void notifyChanged(const QByteArray &basePath, const QByteArray &key);
 
 private:
     friend class MDConfGroupPrivate;
