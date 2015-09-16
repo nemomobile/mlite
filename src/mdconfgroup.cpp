@@ -111,12 +111,6 @@ void MDConfGroup::resolveMetaObject(int propertyOffset)
         propertyOffset = staticMetaObject.propertyCount();
     priv->propertyOffset = propertyOffset;
 
-    // If there's no Q_OBJECT declaration or dynamic meta-object in the derived type there's
-    // nothing to do here so abort.
-    if (metaObject == &staticMetaObject) {
-        return;
-    }
-
     // Connect all the notify signals of the derived type's properties to the propertyChanged()
     // slot.
     for (int i = propertyOffset; i < metaObject->propertyCount(); ++i) {

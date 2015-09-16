@@ -426,7 +426,7 @@ void UtMDConfGroup::value()
     const QVariant defaultValue = QStringLiteral("default");
 
     MDConfGroup group1;
-    MDConfGroup group2;
+    MDConfGroup group2(QStringLiteral("/mlite-tests/ut_mdconfgroup/scopes/scope1/nested/properties"));
 
     group1.setObjectName("group1");
     group2.setObjectName("group2");
@@ -434,7 +434,6 @@ void UtMDConfGroup::value()
     QSignalSpy propertySpy(&group2, SIGNAL(valueChanged(QString)));
 
     group1.setPath(QStringLiteral("/mlite-tests/ut_mdconfgroup/scopes/scope1/nested/properties"));
-    group2.setPath(QStringLiteral("/mlite-tests/ut_mdconfgroup/scopes/scope1/nested/properties"));
 
     QCOMPARE(group1.isSynchronous(), false);
     QCOMPARE(group2.isSynchronous(), false);
