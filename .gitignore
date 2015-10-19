@@ -1,9 +1,0 @@
-*~
-*.o
-*.so*
-Makefile
-*.pro.user
-.moc
-.obj
-mnotificationmanagerproxy.*
-tools/mlitenotificationtool/mlitenotificationtool
